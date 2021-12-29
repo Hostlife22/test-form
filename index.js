@@ -1,15 +1,16 @@
-const form = document.querySelector('.login-form');
-const btn = document.querySelector('.submit-button');
+const formElem = document.querySelector('.login-form');
+const submitBtnElem = document.querySelector('.submit-button');
 
-const checkValidForm = () => {
-  btn.disabled = !form.reportValidity();
+const onInputChange = () =>
+  formElem.reportValidity()
+    ? submitBtnElem.removeAttribute('disabled')
+    : submitBtnElem.setAttribute('disabled', true);
+
+const clearForm = () => {
+  formElem.reset();
 };
 
-const clearEventForm = () => {
-  form.reset();
-};
-
-const createUser = data => {
+const createUser = formData => {
   const baseUrl = 'https://61c8c4dcadee460017260de8.mockapi.io/form';
 
   return fetch(baseUrl, {
@@ -17,24 +18,22 @@ const createUser = data => {
     headers: {
       'Content-Type': 'application/json;charset=utf-8',
     },
-    body: JSON.stringify(data),
+    body: JSON.stringify(formData),
   })
-    .then(response => response.text())
-    .then(responseData => {
-      alert(responseData);
-
-      clearEventForm();
+    .then(response => response.json())
+    .then(data => {
+      alert(JSON.stringify(data));
+      clearForm();
     });
 };
 
 const onSubmitForm = e => {
   e.preventDefault();
 
-  const formData = Object.fromEntries(new FormData(form));
+  const formData = Object.fromEntries(new FormData(formElem));
 
-  checkValidForm();
   createUser(formData);
 };
 
-form.addEventListener('keyup', checkValidForm);
-btn.addEventListener('click', onSubmitForm);
+formElem.addEventListener('keyup', onInputChange);
+formElem.addEventListener('submit', onSubmitForm);
